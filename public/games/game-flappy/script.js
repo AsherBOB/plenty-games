@@ -18,13 +18,11 @@ function loop() {
     bird.v += bird.g;
     bird.y += bird.v;
 
-    if (bird.y + bird.r > canvas.height || bird.y - bird.r < 0) gameOver = true;
+    if (bird.y + bird.r > canvas.height || bird.y - bird.r < 0) { triggerGameOver(); return; }
 
-    // Draw Bird
     ctx.fillStyle = '#f1c40f';
     ctx.beginPath(); ctx.arc(bird.x, bird.y, bird.r, 0, Math.PI*2); ctx.fill();
 
-    // Handle Pipes
     if (frameCount % 90 === 0) {
         let gap = 110;
         let topH = Math.floor(Math.random() * (canvas.height - gap - 100)) + 30;
@@ -34,16 +32,14 @@ function loop() {
     for (let i = pipes.length - 1; i >= 0; i--) {
         pipes[i].x -= 2;
 
-        // Draw top pipe
         ctx.fillStyle = '#2ecc71';
         ctx.fillRect(pipes[i].x, 0, 50, pipes[i].top);
-        // Draw bottom pipe
         ctx.fillRect(pipes[i].x, canvas.height - pipes[i].bottom, 50, pipes[i].bottom);
 
-        // Check Collision
         if (bird.x + bird.r > pipes[i].x && bird.x - bird.r < pipes[i].x + 50) {
             if (bird.y - bird.r < pipes[i].top || bird.y + bird.r > canvas.height - pipes[i].bottom) {
-                gameOver = true;
+                triggerGameOver();
+                return;
             }
         }
 
@@ -51,23 +47,28 @@ function loop() {
         if (pipes[i].x < -50) pipes.splice(i, 1);
     }
 
-    if (gameOver) {
-        ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = '#fff'; ctx.font = '24px Arial'; ctx.fillText("Game Over", 100, 240);
-        ctx.font = '16px Arial'; ctx.fillText("Tap to Restart", 110, 280);
-    } else {
-        frameCount++;
-        requestAnimationFrame(loop);
-    }
+    frameCount++;
+    requestAnimationFrame(loop);
+}
+
+function triggerGameOver() {
+    gameOver = true;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Arial'; ctx.fillText("Game Over", 85, 220);
+    ctx.font = '14px Arial'; ctx.fillStyle = '#cbd5e1'; ctx.fillText("Tap screen to cash-out coins", 65, 260);
+
+    // Dispatches earned scores up into the parent dashboard ledger instantly on execution crash
+    window.parent.postMessage({ type: 'GAME_OVER_SCORE', score: score }, '*');
 }
 
 window.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    if (gameOver) resetGame(), loop();
+    if (gameOver) { resetGame(); requestAnimationFrame(loop); }
     else bird.v = -bird.jump;
-});
-window.addEventListener('mousedown', () => {
-    if (gameOver) resetGame(), loop();
+}, { passive: false });
+
+window.addEventListener('mousedown', (e) => {
+    if (gameOver) { resetGame(); requestAnimationFrame(loop); }
     else bird.v = -bird.jump;
 });
 

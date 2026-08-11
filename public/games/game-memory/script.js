@@ -7,17 +7,24 @@ let selectedPair = [];
 let pointWallet = 0;
 let totalMatches = 0;
 
-// Shuffle tracking array mechanics
 itemDeck.sort(() => Math.random() - 0.5);
 
 function initEcosystem() {
     gridContainer.innerHTML = '';
+    pointWallet = 0;
+    totalMatches = 0;
+    scoreLabel.textContent = pointWallet;
+    statusMessage.textContent = "// Ready Matrix";
+    
+    itemDeck.sort(() => Math.random() - 0.5);
     itemDeck.forEach((char, index) => {
         const block = document.createElement('div');
         block.classList.add('card');
         block.dataset.char = char;
         block.dataset.id = index;
         block.addEventListener('click', triggerRotation);
+        // Supports unified responsive touch setups on mobile screen configurations
+        block.addEventListener('touchstart', function(e) { e.preventDefault(); triggerRotation.call(this); }, { passive: false });
         gridContainer.appendChild(block);
     });
 }
@@ -30,7 +37,7 @@ function triggerRotation() {
     selectedPair.push(this);
 
     if (selectedPair.length === 2) {
-        setTimeout(verifyEquivalence, 500);
+        setTimeout(verifyEquivalence, 400);
     }
 }
 
@@ -46,10 +53,10 @@ function verifyEquivalence() {
         
         if (totalMatches === itemDeck.length) {
             statusMessage.textContent = "Complete! 🎉";
-            // Broadcast score payload up into core App.jsx coin holder matrix
             setTimeout(() => {
                 window.parent.postMessage({ type: 'GAME_OVER_SCORE', score: pointWallet }, '*');
-            }, 1000);
+                initEcosystem(); // Re-trigger auto-generation loop reset mapping
+            }, 1200);
         }
     } else {
         nodeA.classList.remove('flipped');
