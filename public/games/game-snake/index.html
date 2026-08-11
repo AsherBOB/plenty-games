@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake Neon Arcade</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="game-frame">
+        <div id="score-banner">
+            <div class="stat"><span class="icon">🍎</span> <span id="current-score">0</span></div>
+            <div class="stat"><span class="icon">🏆</span> <span id="high-score">0</span></div>
+        </div>
+        <div id="stage">
+            <canvas id="board" width="400" height="400"></canvas>
+        </div>
+        <div id="dpad">
+            <button id="up-btn">▲</button>
+            <div class="dpad-row">
+                <button id="left-btn">◀</button>
+                <button id="right-btn">▶</button>
+            </div>
+            <button id="down-btn">▼</button>
+        </div>
+    </div>
+    <script src="./script.js"></script>
+</body>
+</html>
